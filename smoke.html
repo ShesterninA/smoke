@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Меньше дыма">
+<title>Меньше дыма</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+:root {
+  --bg: #0a0a0b;
+  --surface: #141416;
+  --surface2: #1e1e22;
+  --accent: #e8c547;
+  --accent2: #e87d47;
+  --text: #f0ede8;
+  --muted: #6b6b72;
+  --danger: #e84747;
+  --good: #47c878;
+  --border: #2a2a30;
+}
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Manrope', sans-serif;
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  overflow-x: hidden;
+}
+
+.app { max-width: 420px; margin: 0 auto; padding: 0 0 100px; }
+
+/* NAV */
+.nav {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 10;
+}
+.nav-btn {
+  flex: 1;
+  padding: 16px 8px;
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: color 0.2s;
+  position: relative;
+}
+.nav-btn.active {
+  color: var(--accent);
+}
+.nav-btn.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 20%; right: 20%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+}
+
+/* PAGES */
+.page { display: none; padding: 24px 20px; }
+.page.active { display: block; }
+
+/* ГЛАВНАЯ */
+.time-display {
+  text-align: center;
+  padding: 40px 0 32px;
+}
+.time-label {
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.time-big {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 64px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -2px;
+  color: var(--text);
+  transition: color 0.5s;
+}
+.time-big.warning { color: var(--accent); }
+.time-big.overdue { color: var(--accent2); }
+.time-sub {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 10px;
+}
+
+/* Прогресс-дуга */
+.arc-wrap {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 32px;
+  position: relative;
+}
+.arc-wrap svg { transform: rotate(-90deg); }
+.arc-bg { fill: none; stroke: var(--surface2); stroke-width: 6; }
+.arc-fill { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear, stroke 0.5s; }
+.arc-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.arc-count {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+}
+.arc-limit { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+/* Кнопка ЗАКУРИЛ */
+.smoke-btn {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text);
+  font-family: 'Unbounded', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+}
+.smoke-btn:active {
+  transform: scale(0.97);
+  background: var(--surface);
+}
+.smoke-btn.pulse {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.smoke-btn-sub {
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--muted);
+  margin-top: 4px;
+  letter-spacing: 0;
+}
+
+/* Статы */
+.stats-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.stat-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.stat-val {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--text);
+}
+.stat-val.good { color: var(--good); }
+.stat-val.bad { color: var(--accent2); }
+
+/* НАСТРОЙКИ */
+.section-title {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.section-title:first-child { margin-top: 0; }
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+}
+.setting-name { font-size: 14px; color: var(--text); }
+.setting-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.setting-ctrl {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.ctrl-btn {
+  width: 32px; height: 32px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 18px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.ctrl-btn:active { background: var(--border); }
+.ctrl-val {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 16px;
+  min-width: 28px;
+  text-align: center;
+  color: var(--accent);
+}
+
+.danger-btn {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  border: 1px solid var(--danger);
+  border-radius: 12px;
+  color: var(--danger);
+  font-family: 'Manrope', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  margin-top: 8px;
+}
+.danger-btn:active { background: rgba(232,71,71,0.1); }
+
+/* ИСТОРИЯ */
+.day-group { margin-bottom: 24px; }
+.day-label {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.day-count {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  color: var(--accent);
+}
+.smoke-entry {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  margin-bottom: 6px;
+}
+.entry-time {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--text);
+  min-width: 50px;
+}
+.entry-gap {
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1;
+}
+.entry-gap.ok { color: var(--good); }
+.entry-gap.bad { color: var(--accent2); }
+
+/* ГРАФИК */
+.chart-wrap {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.chart-title {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+.bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  height: 80px;
+}
+.bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  background: var(--surface2);
+  transition: height 0.3s, background 0.3s;
+  min-height: 2px;
+}
+.bar.today { background: var(--accent); }
+.bar-lbl { font-size: 9px; color: var(--muted); }
+.bar-num { font-size: 10px; color: var(--text); font-weight: 500; }
+
+.empty-state {
+  text-align: center;
+  padding: 48px 20px;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* Тост */
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(80px);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 20px;
+  font-size: 13px;
+  color: var(--text);
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 100;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+</style>
+</head>
+<body>
+<div class="app">
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showPage('main')">Сейчас</button>
+    <button class="nav-btn" onclick="showPage('history')">История</button>
+    <button class="nav-btn" onclick="showPage('settings')">Настройки</button>
+  </nav>
+
+  <!-- ГЛАВНАЯ -->
+  <div id="page-main" class="page active">
+    <div class="time-display">
+      <div class="time-label" id="timer-label">до следующей</div>
+      <div class="time-big" id="timer-display">--:--</div>
+      <div class="time-sub" id="timer-sub">Нажми "Закурил" чтобы начать</div>
+    </div>
+
+    <div class="arc-wrap">
+      <svg width="160" height="160" viewBox="0 0 160 160">
+        <circle class="arc-bg" cx="80" cy="80" r="68"/>
+        <circle class="arc-fill" id="arc" cx="80" cy="80" r="68"
+          stroke="#e8c547"
+          stroke-dasharray="427"
+          stroke-dashoffset="427"/>
+      </svg>
+      <div class="arc-center">
+        <div class="arc-count" id="today-count">0</div>
+        <div class="arc-limit" id="today-limit">из 0 сегодня</div>
+      </div>
+    </div>
+
+    <button class="smoke-btn" id="smoke-btn" onclick="logSmoke()">
+      ЗАКУРИЛ
+      <div class="smoke-btn-sub" id="smoke-btn-sub">зафиксировать сигарету</div>
+    </button>
+
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Сэкономлено</div>
+        <div class="stat-val good" id="saved-money">0 ₽</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Среднее/день</div>
+        <div class="stat-val" id="avg-per-day">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Лучший день</div>
+        <div class="stat-val good" id="best-day">—</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Дней трекаю</div>
+        <div class="stat-val" id="days-tracked">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ИСТОРИЯ -->
+  <div id="page-history" class="page">
+    <div class="chart-wrap">
+      <div class="chart-title">Последние 14 дней</div>
+      <div class="bars" id="chart-bars"></div>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <!-- НАСТРОЙКИ -->
+  <div id="page-settings" class="page">
+    <div class="section-title">Режим</div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">Интервал</div>
+        <div class="setting-desc">минут между сигаретами</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="ctrl-btn" onclick="adjustSetting('interval', -15)">−</button>
+        <div class="ctrl-val" id="val-interval">120</div>
+        <button class="ctrl-btn" onclick="adjustSetting('interval', 15)">+</button>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">Лимит в день</div>
+        <div class="setting-desc">максимум сигарет</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="ctrl-btn" onclick="adjustSetting('limit', -1)">−</button>
+        <div class="ctrl-val" id="val-limit">10</div>
+        <button class="ctrl-btn" onclick="adjustSetting('limit', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">Цена пачки</div>
+        <div class="setting-desc">рублей (для подсчёта экономии)</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="ctrl-btn" onclick="adjustSetting('packPrice', -10)">−</button>
+        <div class="ctrl-val" id="val-packPrice">219</div>
+        <button class="ctrl-btn" onclick="adjustSetting('packPrice', 10)">+</button>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <div>
+        <div class="setting-name">Базовое кол-во</div>
+        <div class="setting-desc">сколько курил до трекинга/день</div>
+      </div>
+      <div class="setting-ctrl">
+        <button class="ctrl-btn" onclick="adjustSetting('baseline', -1)">−</button>
+        <div class="ctrl-val" id="val-baseline">15</div>
+        <button class="ctrl-btn" onclick="adjustSetting('baseline', 1)">+</button>
+      </div>
+    </div>
+
+    <div class="section-title">Данные</div>
+    <button class="danger-btn" onclick="confirmClear()">Очистить все данные</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const KEY_SMOKES = 'smk_log';
+const KEY_SETTINGS = 'smk_cfg';
+
+let settings = { interval: 120, limit: 10, packPrice: 219, baseline: 15 };
+let timerInterval = null;
+
+function loadSettings() {
+  try {
+    const s = localStorage.getItem(KEY_SETTINGS);
+    if (s) settings = { ...settings, ...JSON.parse(s) };
+  } catch(e) {}
+  document.getElementById('val-interval').textContent = settings.interval;
+  document.getElementById('val-limit').textContent = settings.limit;
+  document.getElementById('val-packPrice').textContent = settings.packPrice;
+  document.getElementById('val-baseline').textContent = settings.baseline;
+}
+
+function saveSettings() {
+  localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
+}
+
+function adjustSetting(key, delta) {
+  const mins = { interval: 15, limit: 1, packPrice: 10, baseline: 1 };
+  settings[key] = Math.max(mins[key], settings[key] + delta);
+  document.getElementById('val-' + key).textContent = settings[key];
+  saveSettings();
+  updateMain();
+}
+
+function loadSmokes() {
+  try {
+    const d = localStorage.getItem(KEY_SMOKES);
+    return d ? JSON.parse(d) : [];
+  } catch(e) { return []; }
+}
+
+function saveSmokes(list) {
+  localStorage.setItem(KEY_SMOKES, JSON.stringify(list));
+}
+
+function todayStr() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function logSmoke() {
+  const list = loadSmokes();
+  const now = Date.now();
+  list.push({ t: now, d: todayStr() });
+  saveSmokes(list);
+  updateMain();
+  showToast('Зафиксировано 🚬');
+  const btn = document.getElementById('smoke-btn');
+  btn.classList.add('pulse');
+  setTimeout(() => btn.classList.remove('pulse'), 600);
+}
+
+function formatTime(ms) {
+  if (ms < 0) ms = 0;
+  const totalSec = Math.floor(ms / 1000);
+  const h = Math.floor(totalSec / 3600);
+  const m = Math.floor((totalSec % 3600) / 60);
+  const s = totalSec % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function formatGap(ms) {
+  const m = Math.round(ms / 60000);
+  if (m < 60) return `${m} мин`;
+  const h = Math.floor(m / 60);
+  const rem = m % 60;
+  return rem > 0 ? `${h}ч ${rem}м` : `${h}ч`;
+}
+
+function updateMain() {
+  const list = loadSmokes();
+  const today = todayStr();
+  const todaySmokes = list.filter(s => s.d === today);
+  const count = todaySmokes.length;
+  const limit = settings.limit;
+
+  // Счётчик
+  document.getElementById('today-count').textContent = count;
+  document.getElementById('today-limit').textContent = `из ${limit} сегодня`;
+
+  // Дуга
+  const pct = Math.min(count / limit, 1);
+  const circ = 427;
+  const arc = document.getElementById('arc');
+  arc.style.strokeDashoffset = circ - circ * pct;
+  arc.style.stroke = count >= limit ? '#e84747' : count >= limit * 0.8 ? '#e87d47' : '#e8c547';
+
+  // Таймер
+  clearInterval(timerInterval);
+  if (todaySmokes.length > 0) {
+    const last = todaySmokes[todaySmokes.length - 1].t;
+    const nextAllowed = last + settings.interval * 60 * 1000;
+
+    const tick = () => {
+      const now = Date.now();
+      const remaining = nextAllowed - now;
+      const el = document.getElementById('timer-display');
+      const lbl = document.getElementById('timer-label');
+      const sub = document.getElementById('timer-sub');
+
+      if (remaining > 0) {
+        const pctDone = 1 - remaining / (settings.interval * 60 * 1000);
+        el.textContent = formatTime(remaining);
+        el.className = 'time-big' + (pctDone > 0.8 ? ' warning' : '');
+        lbl.textContent = 'до следующей';
+        sub.textContent = `интервал ${settings.interval} мин`;
+      } else {
+        el.textContent = formatTime(Math.abs(remaining));
+        el.className = 'time-big overdue';
+        lbl.textContent = 'просрочено на';
+        sub.textContent = 'можно закурить';
+      }
+    };
+    tick();
+    timerInterval = setInterval(tick, 1000);
+  } else {
+    document.getElementById('timer-display').textContent = '--:--';
+    document.getElementById('timer-label').textContent = 'до следующей';
+    document.getElementById('timer-sub').textContent = 'Нажми "Закурил" чтобы начать';
+  }
+
+  // Экономия
+  const allDays = {};
+  list.forEach(s => { allDays[s.d] = (allDays[s.d] || 0) + 1; });
+  const daysArr = Object.keys(allDays);
+  const baseline = settings.baseline;
+  const pricePerCig = settings.packPrice / 20;
+  let savedCigs = 0;
+  daysArr.forEach(d => { savedCigs += Math.max(0, baseline - allDays[d]); });
+  const savedMoney = Math.round(savedCigs * pricePerCig);
+  document.getElementById('saved-money').textContent = savedMoney > 0 ? `${savedMoney} ₽` : '0 ₽';
+
+  // Среднее
+  if (daysArr.length > 0) {
+    const avg = Math.round(list.length / daysArr.length * 10) / 10;
+    const avgEl = document.getElementById('avg-per-day');
+    avgEl.textContent = avg;
+    avgEl.className = 'stat-val' + (avg < baseline ? ' good' : avg > baseline ? ' bad' : '');
+  }
+
+  // Лучший день
+  if (daysArr.length > 0) {
+    const minDay = Math.min(...Object.values(allDays));
+    document.getElementById('best-day').textContent = minDay;
+  }
+
+  document.getElementById('days-tracked').textContent = daysArr.length;
+}
+
+function updateHistory() {
+  const list = loadSmokes();
+  const container = document.getElementById('history-list');
+
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-state">Пока нет данных.<br>Нажми «Закурил» на главном экране.</div>';
+    updateChart([]);
+    return;
+  }
+
+  // Группируем по дням
+  const byDay = {};
+  list.forEach(s => {
+    if (!byDay[s.d]) byDay[s.d] = [];
+    byDay[s.d].push(s);
+  });
+
+  const days = Object.keys(byDay).sort().reverse();
+  container.innerHTML = '';
+
+  days.forEach(day => {
+    const smokes = byDay[day].sort((a, b) => a.t - b.t);
+    const date = new Date(day + 'T12:00:00');
+    const labels = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+    const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+    const dateStr = `${labels[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]}`;
+
+    const group = document.createElement('div');
+    group.className = 'day-group';
+    group.innerHTML = `<div class="day-label"><span>${dateStr}</span><span class="day-count">${smokes.length} шт</span></div>`;
+
+    smokes.forEach((s, i) => {
+      const t = new Date(s.t);
+      const timeStr = `${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`;
+      let gapStr = '';
+      let gapClass = '';
+      if (i > 0) {
+        const gap = s.t - smokes[i-1].t;
+        gapStr = `+${formatGap(gap)}`;
+        gapClass = gap >= settings.interval * 60 * 1000 ? 'ok' : 'bad';
+      }
+      const entry = document.createElement('div');
+      entry.className = 'smoke-entry';
+      entry.innerHTML = `
+        <div class="entry-time">${timeStr}</div>
+        <div class="entry-gap ${gapClass}">${gapStr || 'первая'}</div>
+      `;
+      group.appendChild(entry);
+    });
+
+    container.appendChild(group);
+  });
+
+  updateChart(byDay);
+}
+
+function updateChart(byDay) {
+  const barsEl = document.getElementById('chart-bars');
+  barsEl.innerHTML = '';
+  const today = todayStr();
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(d.toISOString().slice(0, 10));
+  }
+  const counts = days.map(d => (byDay[d] || []).length);
+  const maxCount = Math.max(...counts, 1);
+  const months = ['янв','фев','мар','апр','май','июн','июл','авг','сен','окт','ноя','дек'];
+
+  days.forEach((d, i) => {
+    const cnt = counts[i];
+    const pct = cnt / maxCount;
+    const date = new Date(d + 'T12:00:00');
+    const lbl = `${date.getDate()}`;
+    const wrap = document.createElement('div');
+    wrap.className = 'bar-wrap';
+    wrap.innerHTML = `
+      <div class="bar-num">${cnt > 0 ? cnt : ''}</div>
+      <div class="bar ${d === today ? 'today' : ''}" style="height:${Math.max(pct * 60, cnt > 0 ? 4 : 2)}px"></div>
+      <div class="bar-lbl">${lbl}</div>
+    `;
+    barsEl.appendChild(wrap);
+  });
+}
+
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'history') updateHistory();
+  if (name === 'main') updateMain();
+}
+
+function confirmClear() {
+  if (confirm('Удалить все данные? Это нельзя отменить.')) {
+    localStorage.removeItem(KEY_SMOKES);
+    showToast('Данные удалены');
+    updateMain();
+    updateHistory();
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// Обновляем таймер каждую секунду даже на фоне
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) updateMain();
+});
+
+loadSettings();
+updateMain();
+setInterval(updateMain, 30000);
+</script>
+</body>
+</html>
