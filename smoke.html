@@ -28,25 +28,29 @@ html, body {
   background: var(--bg);
   color: var(--text);
   font-family: 'Manrope', sans-serif;
-  min-height: 100vh;
-  min-height: -webkit-fill-available;
-  overflow-x: hidden;
+  height: 100vh;
+  height: -webkit-fill-available;
+  overflow: hidden;
 }
 
-.app { max-width: 420px; margin: 0 auto; padding: 0 0 100px; }
+.app {
+  max-width: 420px;
+  margin: 0 auto;
+  height: 100vh;
+  height: -webkit-fill-available;
+  display: flex;
+  flex-direction: column;
+}
 
 /* NAV */
 .nav {
   display: flex;
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  background: var(--bg);
-  z-index: 10;
+  flex-shrink: 0;
 }
 .nav-btn {
   flex: 1;
-  padding: 16px 8px;
+  padding: clamp(10px, 2vh, 16px) 8px;
   background: none;
   border: none;
   color: var(--muted);
@@ -59,9 +63,7 @@ html, body {
   transition: color 0.2s;
   position: relative;
 }
-.nav-btn.active {
-  color: var(--accent);
-}
+.nav-btn.active { color: var(--accent); }
 .nav-btn.active::after {
   content: '';
   position: absolute;
@@ -72,24 +74,45 @@ html, body {
 }
 
 /* PAGES */
-.page { display: none; padding: 24px 20px; }
-.page.active { display: block; }
+.page { display: none; flex: 1; overflow: hidden; padding: clamp(12px, 2.5vh, 24px) 20px; }
+.page.active { display: flex; flex-direction: column; }
+
+/* История — график фиксирован, список скроллится */
+#page-history.active { overflow: hidden; }
+#page-settings.active { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+.history-chart { flex-shrink: 0; }
+.history-scroll {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -20px;
+  padding: 0 20px;
+}
+.history-scroll::-webkit-scrollbar { width: 3px; }
+.history-scroll::-webkit-scrollbar-track { background: transparent; }
+.history-scroll::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+.history-scroll::-webkit-scrollbar-thumb:hover { background: var(--muted); }
 
 /* ГЛАВНАЯ */
 .time-display {
   text-align: center;
-  padding: 40px 0 32px;
+  flex-shrink: 0;
+  padding: clamp(8px, 2vh, 24px) 0 clamp(6px, 1.5vh, 16px);
 }
 .time-label {
   font-size: 11px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 16px;
+  margin-bottom: clamp(6px, 1vh, 12px);
 }
 .time-big {
   font-family: 'Unbounded', sans-serif;
-  font-size: 64px;
+  font-size: clamp(40px, 10vw, 64px);
   font-weight: 300;
   line-height: 1;
   letter-spacing: -2px;
@@ -101,14 +124,15 @@ html, body {
 .time-sub {
   font-size: 13px;
   color: var(--muted);
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 /* Прогресс-дуга */
 .arc-wrap {
   display: flex;
   justify-content: center;
-  margin: 0 0 32px;
+  flex-shrink: 0;
+  margin: 0 0 clamp(8px, 2vh, 24px);
   position: relative;
 }
 .arc-wrap svg { transform: rotate(-90deg); }
@@ -122,7 +146,7 @@ html, body {
 }
 .arc-count {
   font-family: 'Unbounded', sans-serif;
-  font-size: 28px;
+  font-size: clamp(20px, 5vw, 28px);
   font-weight: 700;
   color: var(--text);
 }
@@ -132,29 +156,22 @@ html, body {
 .smoke-btn {
   display: block;
   width: 100%;
-  padding: 20px;
+  padding: clamp(12px, 2.5vh, 20px);
   background: var(--surface2);
   border: 1px solid var(--border);
   border-radius: 16px;
   color: var(--text);
   font-family: 'Unbounded', sans-serif;
-  font-size: 16px;
+  font-size: clamp(14px, 4vw, 16px);
   font-weight: 400;
   letter-spacing: 0.05em;
   cursor: pointer;
   transition: all 0.15s;
-  margin-bottom: 12px;
-  position: relative;
-  overflow: hidden;
+  margin-bottom: 10px;
+  flex-shrink: 0;
 }
-.smoke-btn:active {
-  transform: scale(0.97);
-  background: var(--surface);
-}
-.smoke-btn.pulse {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
-}
+.smoke-btn:active { transform: scale(0.97); background: var(--surface); }
+.smoke-btn.pulse { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
 .smoke-btn-sub {
   font-family: 'Manrope', sans-serif;
   font-size: 11px;
@@ -168,25 +185,25 @@ html, body {
 .stats-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 8px;
+  flex-shrink: 0;
 }
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 14px 16px;
+  padding: clamp(8px, 1.5vh, 14px) 16px;
 }
 .stat-label {
   font-size: 10px;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .stat-val {
   font-family: 'Unbounded', sans-serif;
-  font-size: 20px;
+  font-size: clamp(16px, 4vw, 20px);
   font-weight: 400;
   color: var(--text);
 }
@@ -199,8 +216,8 @@ html, body {
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 12px;
-  margin-top: 24px;
+  margin-bottom: 10px;
+  margin-top: 16px;
 }
 .section-title:first-child { margin-top: 0; }
 
@@ -231,15 +248,25 @@ html, body {
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s;
+  flex-shrink: 0;
 }
 .ctrl-btn:active { background: var(--border); }
-.ctrl-val {
+.ctrl-input {
   font-family: 'Unbounded', sans-serif;
   font-size: 16px;
-  min-width: 28px;
+  width: 56px;
   text-align: center;
   color: var(--accent);
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 4px 6px;
+  outline: none;
+  -moz-appearance: textfield;
 }
+.ctrl-input::-webkit-inner-spin-button,
+.ctrl-input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+.ctrl-input:focus { border-color: var(--accent); }
 
 .danger-btn {
   width: 100%;
@@ -375,7 +402,7 @@ html, body {
     </div>
 
     <div class="arc-wrap">
-      <svg width="160" height="160" viewBox="0 0 160 160">
+      <svg id="arc-svg" width="120" height="120" viewBox="0 0 160 160">
         <circle class="arc-bg" cx="80" cy="80" r="68"/>
         <circle class="arc-fill" id="arc" cx="80" cy="80" r="68"
           stroke="#e8c547"
@@ -415,11 +442,15 @@ html, body {
 
   <!-- ИСТОРИЯ -->
   <div id="page-history" class="page">
-    <div class="chart-wrap">
-      <div class="chart-title">Последние 14 дней</div>
-      <div class="bars" id="chart-bars"></div>
+    <div class="history-chart">
+      <div class="chart-wrap">
+        <div class="chart-title">Последние 14 дней</div>
+        <div class="bars" id="chart-bars"></div>
+      </div>
     </div>
-    <div id="history-list"></div>
+    <div class="history-scroll">
+      <div id="history-list"></div>
+    </div>
   </div>
 
   <!-- НАСТРОЙКИ -->
@@ -433,7 +464,7 @@ html, body {
       </div>
       <div class="setting-ctrl">
         <button class="ctrl-btn" onclick="adjustSetting('interval', -15)">−</button>
-        <div class="ctrl-val" id="val-interval">120</div>
+        <input class="ctrl-input" id="val-interval" type="number" min="15" value="120" onchange="setSetting('interval', this.value)" oninput="filterDigits(this)">
         <button class="ctrl-btn" onclick="adjustSetting('interval', 15)">+</button>
       </div>
     </div>
@@ -445,7 +476,7 @@ html, body {
       </div>
       <div class="setting-ctrl">
         <button class="ctrl-btn" onclick="adjustSetting('limit', -1)">−</button>
-        <div class="ctrl-val" id="val-limit">10</div>
+        <input class="ctrl-input" id="val-limit" type="number" min="1" value="10" onchange="setSetting('limit', this.value)" oninput="filterDigits(this)">
         <button class="ctrl-btn" onclick="adjustSetting('limit', 1)">+</button>
       </div>
     </div>
@@ -457,7 +488,7 @@ html, body {
       </div>
       <div class="setting-ctrl">
         <button class="ctrl-btn" onclick="adjustSetting('packPrice', -10)">−</button>
-        <div class="ctrl-val" id="val-packPrice">219</div>
+        <input class="ctrl-input" id="val-packPrice" type="number" min="10" value="219" onchange="setSetting('packPrice', this.value)" oninput="filterDigits(this)">
         <button class="ctrl-btn" onclick="adjustSetting('packPrice', 10)">+</button>
       </div>
     </div>
@@ -469,7 +500,7 @@ html, body {
       </div>
       <div class="setting-ctrl">
         <button class="ctrl-btn" onclick="adjustSetting('baseline', -1)">−</button>
-        <div class="ctrl-val" id="val-baseline">15</div>
+        <input class="ctrl-input" id="val-baseline" type="number" min="1" value="15" onchange="setSetting('baseline', this.value)" oninput="filterDigits(this)">
         <button class="ctrl-btn" onclick="adjustSetting('baseline', 1)">+</button>
       </div>
     </div>
@@ -493,20 +524,36 @@ function loadSettings() {
     const s = localStorage.getItem(KEY_SETTINGS);
     if (s) settings = { ...settings, ...JSON.parse(s) };
   } catch(e) {}
-  document.getElementById('val-interval').textContent = settings.interval;
-  document.getElementById('val-limit').textContent = settings.limit;
-  document.getElementById('val-packPrice').textContent = settings.packPrice;
-  document.getElementById('val-baseline').textContent = settings.baseline;
+  document.getElementById('val-interval').value = settings.interval;
+  document.getElementById('val-limit').value = settings.limit;
+  document.getElementById('val-packPrice').value = settings.packPrice;
+  document.getElementById('val-baseline').value = settings.baseline;
 }
 
 function saveSettings() {
   localStorage.setItem(KEY_SETTINGS, JSON.stringify(settings));
 }
 
+function filterDigits(input) {
+  input.value = input.value.replace(/[^0-9]/g, '');
+}
+
+function setSetting(key, val) {
+  const mins = { interval: 15, limit: 1, packPrice: 10, baseline: 1 };
+  const num = parseInt(val);
+  if (isNaN(num) || num < mins[key]) {
+    document.getElementById('val-' + key).value = settings[key];
+    return;
+  }
+  settings[key] = num;
+  saveSettings();
+  updateMain();
+}
+
 function adjustSetting(key, delta) {
   const mins = { interval: 15, limit: 1, packPrice: 10, baseline: 1 };
   settings[key] = Math.max(mins[key], settings[key] + delta);
-  document.getElementById('val-' + key).textContent = settings[key];
+  document.getElementById('val-' + key).value = settings[key];
   saveSettings();
   updateMain();
 }
@@ -776,6 +823,17 @@ document.addEventListener('touchend', e => {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) updateMain();
 });
+
+// Адаптивный размер дуги
+function resizeArc() {
+  const wrap = document.querySelector('.arc-wrap');
+  const available = wrap ? wrap.parentElement.clientHeight : 0;
+  const size = Math.min(Math.max(available * 0.28, 80), 140);
+  const svg = document.getElementById('arc-svg');
+  if (svg) { svg.setAttribute('width', size); svg.setAttribute('height', size); }
+}
+window.addEventListener('resize', resizeArc);
+setTimeout(resizeArc, 100);
 
 loadSettings();
 updateMain();
